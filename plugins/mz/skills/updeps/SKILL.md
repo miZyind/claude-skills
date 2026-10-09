@@ -35,9 +35,8 @@ Run in order; stop and diagnose at the first failure:
 - **Establish a baseline before blaming the upgrade**: `git stash` → clean install from the old lockfile → rerun the failing check. If it fails there too, the problem is pre-existing; report it, don't fold it into the upgrade. `git stash pop` afterwards.
 - **Isolate the offending package**: revert the most suspicious major first (peer-dep warnings tell you which), reinstall, rerun. One variable at a time.
 - **Incompatible major** (toolchain crashes, framework refuses the version): pin back to the newest *working* version, and record the concrete evidence (exact error + which tool's supported range excludes it) for the final report. Never leave the repo broken just to have "latest" in package.json.
-- **`Cannot find module` for a transitive dep after upgrading (yarn 1)**: the hoister may have re-nested packages even when lockfile entries for them are unchanged. Fix by regenerating the lockfile: `rm -rf yarn.lock node_modules && yarn install`. This also refreshes transitive deps, which suits an upgrade task.
-- **Deprecation lint errors from an upgraded library**: migrate the code to the replacement API instead of pinning the old version. Before editing, check the installed package's `.d.ts` to confirm the replacement supports every prop/argument the call site uses (including CSS class constants referenced in styles).
-- Corrupted `node_modules` (e.g. a build tool ran its own installs mid-flight): clean reinstall before deeper diagnosis.
+- **Deprecation lint errors from an upgraded library**: migrate the code to the replacement API instead of pinning the old version. Before editing, check the installed package's `.d.ts` to confirm the replacement covers everything the call sites use — every prop, argument, and exported constant — not just the main entry point.
+- **Stale or corrupted install tree** (`Cannot find module` for a transitive dep after the upgrade, or a build tool ran its own installs mid-flight): clean reinstall before deeper diagnosis — remove `node_modules` and the lockfile, then install. The hoister can leave packages nested where the new graph no longer resolves them even when their lockfile entries are unchanged, and regenerating the lockfile also refreshes transitive deps, which suits an upgrade task.
 
 ## 5. Runtime smoke test
 
