@@ -1,11 +1,11 @@
 {
-  "name": "mz-skills",
+  "name": "mz",
   "description": "miZyind's personal Claude Code plugins",
   "owner": { "name": "miZyind" },
   "plugins": [
     {
-      "name": "mz-tools",
-      "source": "./plugins/mz-tools",
+      "name": "mz",
+      "source": "./plugins/mz",
       "description": "Personal workflow skills: commit, cpd, grill-me, updeps"
     }
   ]
