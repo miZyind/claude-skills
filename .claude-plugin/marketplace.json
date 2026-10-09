@@ -6,7 +6,17 @@
     {
       "name": "mz",
       "source": "./plugins/mz",
-      "description": "Personal workflow skills: commit, cpd, grill-me, updeps"
+      "description": "Personal workflow skills: commit, cpd, updeps"
+    },
+    {
+      "name": "matt",
+      "description": "Matt Pocock's grilling skill, tracked from the upstream repository",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills.git",
+        "path": "skills/productivity"
+      },
+      "skills": ["./grilling"]
     }
   ]
 }
