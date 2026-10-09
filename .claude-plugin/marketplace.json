@@ -6,7 +6,7 @@
     {
       "name": "mz",
       "source": "./plugins/mz",
-      "description": "Personal workflow skills: commit, cpd, updeps"
+      "description": "Personal workflow skills: cpd, updeps"
     },
     {
       "name": "matt",

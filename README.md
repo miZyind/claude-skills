@@ -8,7 +8,6 @@ A personal [plugin marketplace](https://code.claude.com/docs/en/plugins/create-m
 
 | Skill | Invoke | Description |
 | ----- | ------ | ----------- |
-| [commit](plugins/mz/skills/commit/SKILL.md) | `/mz:commit` | Stage the current task's files by explicit path, confirm the staged set, run the repo's fast check, then write a Conventional Commits message on the current branch. Pushes only when asked. |
 | [cpd](plugins/mz/skills/cpd/SKILL.md) | `/mz:cpd` | Commit all, push, then deploy — or stop after the push when a GitHub Actions workflow deploys on push. |
 | [updeps](plugins/mz/skills/updeps/SKILL.md) | `/mz:updeps` | Upgrade all outdated npm/yarn/pnpm dependencies to latest via [taze](https://github.com/antfu-collective/taze), then prove the project still works through a verification ladder (install → lint → typecheck → build → runtime smoke test). Incompatible majors are isolated and pinned back with concrete evidence. |
 
@@ -41,7 +40,7 @@ Claude Code records both in `~/.claude/settings.json` under `extraKnownMarketpla
 
 To follow new commits automatically, set `"autoUpdate": true` on the `mz` entry in `~/.claude/settings.json`, or toggle **Enable auto-update** under `/plugin` → Marketplaces. Neither plugin declares a `version`, so every push here, and every upstream commit for `matt`, counts as a new version.
 
-Skills are namespaced by their plugin: `/mz:commit`, `/mz:cpd`, `/mz:updeps`, `/matt:grilling`. Natural-language requests still trigger them through their descriptions.
+Skills are namespaced by their plugin: `/mz:cpd`, `/mz:updeps`, `/matt:grilling`. Natural-language requests still trigger them through their descriptions.
 
 ## Repository layout
 

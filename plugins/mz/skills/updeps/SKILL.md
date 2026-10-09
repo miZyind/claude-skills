@@ -57,4 +57,4 @@ State clearly, with evidence:
 - What code migrations were made and how they were verified at runtime.
 - Full verification results (lint / typecheck / build / smoke test).
 
-Do **not** commit unless the user asks; when they do, use the `commit` skill.
+Do **not** commit unless the user asks.
