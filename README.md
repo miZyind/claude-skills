@@ -1,33 +1,44 @@
 # Claude Skills
 
-A personal collection of [Agent Skills](https://code.claude.com/docs/en/skills) for Claude Code — reusable, battle-tested workflows packaged as `SKILL.md` files.
+A personal [plugin marketplace](https://code.claude.com/docs/en/plugins/create-marketplace) for Claude Code. It ships one plugin, `mz-tools`, whose skills are reusable, battle-tested workflows packaged as `SKILL.md` files.
 
 ## Skills
 
-| Skill | Description |
-| ----- | ----------- |
-| [updeps](skills/updeps/SKILL.md) | Upgrades all outdated npm/yarn/pnpm dependencies to latest via [taze](https://github.com/antfu-collective/taze), then proves the project still works through a verification ladder (install → lint → typecheck → build → runtime smoke test). Incompatible majors are isolated and pinned back with concrete evidence instead of being silently kept or left broken. |
+| Skill | Invoke | Description |
+| ----- | ------ | ----------- |
+| [commit](plugins/mz-tools/skills/commit/SKILL.md) | `/mz-tools:commit` | Stage the current task's files by explicit path, confirm the staged set, run the repo's fast check, then write a Conventional Commits message on the current branch. Pushes only when asked. |
+| [cpd](plugins/mz-tools/skills/cpd/SKILL.md) | `/mz-tools:cpd` | Commit all, push, then deploy — or stop after the push when a GitHub Actions workflow deploys on push. |
+| [grill-me](plugins/mz-tools/skills/grill-me/SKILL.md) | `/mz-tools:grill-me` | Interview me relentlessly about a plan until every branch of the decision tree is resolved. |
+| [updeps](plugins/mz-tools/skills/updeps/SKILL.md) | `/mz-tools:updeps` | Upgrade all outdated npm/yarn/pnpm dependencies to latest via [taze](https://github.com/antfu-collective/taze), then prove the project still works through a verification ladder (install → lint → typecheck → build → runtime smoke test). Incompatible majors are isolated and pinned back with concrete evidence. |
 
 ## Installation
 
-Each skill is a directory under `skills/` containing a `SKILL.md`. Install one by symlinking (preferred — updates in this repo apply immediately) or copying it into a skills directory:
+In a Claude Code session (2.1.275 or later), one step:
 
-```sh
-# User scope — available in every project
-ln -s /path/to/claude-skills/skills/updeps ~/.claude/skills/updeps
-
-# Project scope — shared with your team via that project's repo
-ln -s /path/to/claude-skills/skills/updeps <project>/.claude/skills/updeps
+```
+/plugin install mz-tools --marketplace miZyind/claude-skills
 ```
 
-Newly installed skills are picked up when a session starts. Invoke a skill explicitly with `/<name>` (e.g. `/updeps`), or just describe the task naturally — Claude auto-triggers the skill when the request matches its description.
+Or from the shell, register the marketplace once and install the plugin:
+
+```sh
+claude plugin marketplace add miZyind/claude-skills
+claude plugin install mz-tools@mz-skills
+```
+
+Claude Code records both in `~/.claude/settings.json` under `extraKnownMarketplaces` and `enabledPlugins`. A machine that receives that settings file clones the marketplace and installs the plugin by itself at the next session start.
+
+To follow new commits automatically, set `"autoUpdate": true` on the `mz-skills` entry in `~/.claude/settings.json`, or toggle **Enable auto-update** under `/plugin` → Marketplaces. The plugin declares no `version`, so every push counts as a new version.
+
+Skills are namespaced by the plugin: `/mz-tools:commit`, `/mz-tools:cpd`, `/mz-tools:grill-me`, `/mz-tools:updeps`. Natural-language requests still trigger them through their descriptions.
 
 ## Repository layout
 
 ```
-skills/
-└── <skill-name>/
-    └── SKILL.md    # YAML frontmatter (name, description) + workflow instructions
+.claude-plugin/marketplace.json     # the catalog: one entry, mz-tools
+plugins/mz-tools/
+├── .claude-plugin/plugin.json      # plugin manifest; no version, so it tracks commits
+└── skills/<skill-name>/SKILL.md    # YAML frontmatter (name, description) + workflow instructions
 ```
 
 The frontmatter `description` determines when Claude auto-triggers the skill; the Markdown body is the workflow Claude follows once triggered. Larger skills may add extra files (scripts, references) next to their `SKILL.md`.
@@ -37,3 +48,4 @@ The frontmatter `description` determines when Claude auto-triggers the skill; th
 - Encode lessons learned from real sessions — a skill earns its place by capturing steps that were non-obvious the first time.
 - Prefer evidence over assumption: skills here instruct Claude to prove causes (baselines, isolation) and verify results against real runtime behavior, not just green builds.
 - Keep the `description` rich in trigger keywords; it is the matching surface.
+- Run `claude plugin validate .` before pushing.
