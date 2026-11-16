@@ -9,7 +9,7 @@ A personal [plugin marketplace](https://code.claude.com/docs/en/plugins/create-m
 | Skill | Invoke | Description |
 | ----- | ------ | ----------- |
 | [cpd](plugins/mz/skills/cpd/SKILL.md) | `/mz:cpd` | Commit all, push, then deploy — or stop after the push when a GitHub Actions workflow deploys on push. |
-| [updeps](plugins/mz/skills/updeps/SKILL.md) | `/mz:updeps` | Upgrade all outdated npm/yarn/pnpm dependencies to latest via [taze](https://github.com/antfu-collective/taze), then prove the project still works through a verification ladder (install → lint → typecheck → build → runtime smoke test). Incompatible majors are isolated and pinned back with concrete evidence. |
+| [updeps](plugins/mz/skills/updeps/SKILL.md) | `/mz:updeps` | Upgrade all outdated npm/yarn/pnpm dependencies to the registry's latest versions, then prove the project still works through a verification ladder (install → lint → typecheck → build → runtime smoke test). Incompatible majors are isolated and pinned back with concrete evidence. |
 
 ### `matt`
 
