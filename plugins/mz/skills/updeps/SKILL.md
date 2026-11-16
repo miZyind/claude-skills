@@ -1,6 +1,6 @@
 ---
 name: updeps
-description: Upgrade all outdated npm/yarn/pnpm dependencies to latest via taze and verify the project still works (install → lint → typecheck → build → runtime smoke test). Isolates incompatible majors instead of blindly keeping them. Use when the user asks to update/upgrade packages or dependencies, check outdated packages, or mentions "taze" / "yarn outdated" / "npm outdated".
+description: Upgrade all outdated npm/yarn/pnpm dependencies to the registry's latest versions and verify the project still works (install → lint → typecheck → build → runtime smoke test). Isolates incompatible majors instead of blindly keeping them. Use when the user asks to update/upgrade packages or dependencies, check outdated packages, or mentions "yarn outdated" / "npm outdated".
 ---
 
 # Upgrade dependencies to latest, verified
@@ -9,16 +9,18 @@ Upgrade every outdated dependency to its latest version, prove the project still
 
 ## 1. Survey
 
-- Detect the package manager from the lockfile (`yarn.lock` → yarn, `package-lock.json` → npm, `pnpm-lock.yaml` → pnpm) and respect `packageManager` in package.json — needed for the install and verify commands. taze itself is package-manager agnostic (it only reads the registry and edits package.json; it never touches the lockfile).
-- Run `npx taze major` to list every available update classified by bump type (add `-r` for monorepos). **Majors are the risk points**; minor/patch are low-risk. If a major is listed, check its ecosystem support before assuming it will work (peer ranges, framework support) — but the real test is phase 3.
+Versions are read straight from the registry by the bundled `scripts/latest.mjs` (next to this file). It asks `npm view <pkg> dist-tags.latest` for every dependency, so it follows the machine's npm registry, proxy and CA settings, and it only ever edits package.json — never the lockfile. Do not reach for a third-party updater.
+
+- Detect the package manager from the lockfile (`yarn.lock` → yarn, `package-lock.json` → npm, `pnpm-lock.yaml` → pnpm) and respect `packageManager` in package.json — needed for the install and verify commands.
+- Run `node <skill-dir>/scripts/latest.mjs` in the project root to list every available update classified by bump type (pass a path to each workspace's package.json for monorepos). **Majors are the risk points**; minor/patch are low-risk. If a major is listed, check its ecosystem support before assuming it will work (peer ranges, framework support) — but the real test is phase 3.
 - Confirm the working tree is clean (or at least note pre-existing changes) so upgrade damage can be isolated later with `git stash`.
 
 ## 2. Upgrade
 
-- Run `npx taze latest -w` to write the latest versions into package.json for ALL packages including majors — the point is to *test* latest, not to guess. taze preserves the existing range style (e.g. `^`), and because only package.json changes, the git diff stays the human-readable record of what was bumped (never make the lockfile the thing to review).
-  - Scope with `--include` / `--exclude` when the user asked for specific packages; use `npx taze major -I` (interactive) when the user wants to approve majors one by one.
-  - Fallback if taze cannot run (offline/registry issues): read the PM's own `outdated` output and edit package.json manually to the same effect.
-  - **Previously held-back majors**: check recent commit messages for packages pinned back with an incompatibility reason (e.g. "TypeScript stays on 6.x"). Quickly re-check whether the blocker is resolved (the blocking tool's supported range / release notes); if not, `--exclude` that package instead of re-breaking the build.
+- Run `node <skill-dir>/scripts/latest.mjs -w` to write the latest versions into package.json for ALL packages including majors — the point is to *test* latest, not to guess. The existing range style (e.g. `^`) is preserved, and because only package.json changes, the git diff stays the human-readable record of what was bumped (never make the lockfile the thing to review).
+  - Hold packages back with `-x a,b` (comma-separated). When the user asked for specific packages, or wants to approve majors one by one, exclude the rest the same way.
+  - If the script reports packages it could not query, fix the registry access (`npm config get registry`, proxy, CA) rather than skipping them; as a last resort look the version up with `npm view <pkg> dist-tags.latest` and edit package.json by hand to the same effect.
+  - **Previously held-back majors**: check recent commit messages for packages pinned back with an incompatibility reason (e.g. "TypeScript stays on 6.x"). Quickly re-check whether the blocker is resolved (the blocking tool's supported range / release notes); if not, exclude that package with `-x` instead of re-breaking the build.
 - Install with the project's package manager to regenerate the lockfile. **Read the install warnings**: peer-dependency ranges that exclude a new major (e.g. `typescript@>=4.8.4 <6.1.0` when installing 7.x) are early evidence of incompatibility — note them before anything breaks.
 
 ## 3. Verify ladder (cheap → expensive)
